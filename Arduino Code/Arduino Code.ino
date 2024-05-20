@@ -1,32 +1,49 @@
 #include <LiquidCrystal_I2C.h>
 
+Wireless Temperature And Humidity Monitoring System With Mobile App
+Mobile Application
+Arduino IDE Code
+#include <SoftwareSerial.h>
+SoftwareSerial bt(8, 7); // RX, TX
 
-/*/
-Code written by: - CodeBuzz (Please mention if you fork)
-Project Name: - Arduino Humidity & Temperature Monitor (Using Bluetooth)
-Code Language: - C++ (Arduino Variant)
+LiquidCrystal_I2C lcd(0x27,16,2); //LCD Display Initialization
+#include "dht.h"
+#define dataPin A0
+dht DHT;
 
-Feel free to contact for any references: - advait.muley@icloud.com
+int temp;
+int hum;
 
-Connections: - 
-  Breadboard Power Rails are Powered
-  **LCD I2C
-    ***GND -> GND(On Breadboard Rail)
-    ***VCC -> VCC(On Breadboard Rail)
-    ***SDA -> A4 (On Arduino)
-    ***SCL -> A5 (On Arduino)
+void setup() {
+ 
+Serial.begin(9600); 
+bt.begin(9600); 
+Serial.println("Ready");
+lcd.begin(); //Beginning the LCD display
+lcd.backlight(); //Turning on the LCD display backlight
+}
 
-  **Bluetooth Module (HC-05)
-    ***VCC -> VCC (On Breadboard Rail)
-    ***GND -> GND (On Breadboard Rail)
-    ***Tx -> 7 (On Arduino)
-    ***Rx -> 8 (On Arduino)
+void loop(){
+  int readData = DHT.read11(dataPin);
 
-  **Temperature and Humidity Sensor (DHT 11)
-    ***VCC -> VCC (On Breadboard Rail)
-    ***GND -> GND (On Breadboard Rail)
-    ***Signal -> A0 (On Arduino)
+  hum = DHT.humidity;
+  temp = DHT.temperature;
+  
+  lcd.setCursor(0,0);
+  lcd.print("Humidity: ");
+  lcd.print(hum);
+  lcd.print("% ");
 
-  For Enahnced Clarity, Refer to The Schematic Diagram Provided Separately
-/*/
+  lcd.setCursor(0,1); 
+  lcd.print("Temp: "); 
+  lcd.print(temp); 
+  lcd.print((char)223); //degree symbol
+  lcd.print("C ");
 
+ bt.print(temp); //send distance to MIT App
+ bt.print(";");
+ bt.print(hum); //send distance to MIT App 
+ bt.println(";");
+  
+  delay(1000);
+}
